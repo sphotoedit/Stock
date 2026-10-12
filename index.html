@@ -61,7 +61,7 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);padding:0 16px 10px
 details{background:var(--s);border:1px solid var(--l);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
 summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:17px 16px;font-size:18px;font-weight:700;cursor:pointer}
 summary::-webkit-details-marker{display:none}
-summary::after{content:"▾";color:var(--m);transition:.2s}
+summary::after{content:"\25BE";color:var(--m);transition:.2s}
 details[open] summary::after{transform:rotate(180deg)}
 summary span{flex:1}
 summary em{font-style:normal;font-weight:500;font-size:14px;color:var(--m)}
@@ -100,8 +100,8 @@ details[open]>summary{border-bottom:1px solid var(--l)}
 <div class="app">
   <header>
     <div class="flag"></div>
-    <div class="top"><div class="logo">Stock <b>KIT</b></div><button class="ic" id="setBtn" aria-label="Settings">⚙</button></div>
-    <input class="search" id="q" type="search" placeholder="Search products or hints…">
+    <div class="top"><div class="logo">Stock <b>KIT</b></div><button class="ic" id="setBtn" aria-label="Settings">&#x2699;</button></div>
+    <input class="search" id="q" type="search" placeholder="Search products or hints&#x2026;">
     <div class="chips" id="chips"></div>
   </header>
   <div class="stats">
@@ -116,19 +116,19 @@ details[open]>summary{border-bottom:1px solid var(--l)}
 
 <div class="sheet" id="ps">
   <div class="grab"></div>
-  <div class="sh"><h2 id="pt">Product</h2><button class="x" data-close>✕</button></div>
+  <div class="sh"><h2 id="pt">Product</h2><button class="x" data-close>&#x2715;</button></div>
   <div class="top2" id="top2">
     <div class="bigrow"><div class="big" id="big">0</div><span class="badge" id="badge"></span></div>
     <div class="sub" id="bigSub"></div>
   </div>
   <div class="qbox" id="sStock"><div class="qlabel">Add or remove stock</div>
     <input id="amt" type="number" inputmode="decimal" placeholder="Type quantity">
-    <div class="two"><button class="btn bad" id="cMinus">− Remove</button><button class="btn ok" id="cPlus">+ Add</button></div></div>
+    <div class="two"><button class="btn bad" id="cMinus">&#x2212; Remove</button><button class="btn ok" id="cPlus">+ Add</button></div></div>
   <div id="acc">
-    <details id="sHist"><summary><span>🕘 Stock history</span><em id="hSum"></em></summary>
+    <details id="sHist"><summary><span>&#x1F558; Stock history</span><em id="hSum"></em></summary>
       <div class="body"><div class="hist" id="hist"></div></div>
     </details>
-    <details id="sPrice"><summary><span>₹ Price</span><em id="pSum"></em></summary>
+    <details id="sPrice"><summary><span>&#x20B9; Price</span><em id="pSum"></em></summary>
       <div class="body f">
         <div class="two">
           <label>Price<input id="fPrice" type="number" inputmode="decimal" placeholder="0"></label>
@@ -139,12 +139,11 @@ details[open]>summary{border-bottom:1px solid var(--l)}
         <div id="phWrap"><div class="h3" style="margin-top:4px">Price history</div><div class="hist" id="ph"></div></div>
       </div>
     </details>
-    <details id="sDet"><summary><span>✏️ Product details</span></summary>
+    <details id="sDet"><summary><span>&#x270F;&#xFE0F; Product details</span></summary>
       <div class="body f">
         <label>Name<input id="fName" placeholder="e.g. Cashew W320"></label>
         <label>Hint / note<input id="fHint" placeholder="e.g. 25kg bag, Vietnam, shelf B2"></label>
-        <label>Category<input id="fCat" list="cats" placeholder="Nuts, Rubber, Import…"></label>
-        <datalist id="cats"></datalist>
+        <label>Category<select id="fCatSel"></select><input id="fCat" placeholder="Type new category name" style="display:none"></label>
         <button class="btn" data-save id="saveD">Save details</button>
       </div>
     </details>
@@ -154,7 +153,7 @@ details[open]>summary{border-bottom:1px solid var(--l)}
 
 <div class="sheet" id="ss">
   <div class="grab"></div>
-  <div class="sh"><h2>Settings</h2><button class="x" data-close>✕</button></div>
+  <div class="sh"><h2>Settings</h2><button class="x" data-close>&#x2715;</button></div>
   <div class="sec"><h3>General</h3><div class="f"><div class="two">
     <label>Low stock at or below<input id="cLow" type="number" min="0"></label>
     <label>Currency<input id="cCur" maxlength="4"></label></div></div></div>
@@ -170,7 +169,7 @@ details[open]>summary{border-bottom:1px solid var(--l)}
 (()=>{
 const KEY='stockkit_v1',OLD='desi_stock_inventory_v2';
 const $=id=>document.getElementById(id);
-let D={items:[],cfg:{low:5,cur:'₹'}},cur=null,cat='All';
+let D={items:[],cfg:{low:5,cur:'\u20B9'}},cur=null,cat='All';
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>{const n=parseFloat(v);return isFinite(n)?Math.round(n*1000)/1000:0};
@@ -182,12 +181,13 @@ function load(){
   try{const s=localStorage.getItem(KEY)||localStorage.getItem(OLD);
     if(s){const p=JSON.parse(s);if(Array.isArray(p))D.items=p.map(fix);else if(p&&p.items){D.items=p.items.map(fix);D.cfg=Object.assign(D.cfg,p.cfg)}}}catch(e){}
   if(!D.items.length&&!localStorage.getItem(KEY))D.items=[
-    {name:'Cashew W320',hint:'25kg bag · Vietnam',cat:'Nuts',stock:120,per:'kg',price:780},
-    {name:'Rubber Gasket 40mm',hint:'Box of 100 · shelf B2',cat:'Rubber',stock:300,per:'dozen',price:96},
-    {name:'LED Torch (Import)',hint:'China · 1 yr warranty',cat:'Import',stock:3,per:'piece',price:180}].map(fix);
+    {name:'Cashew W320',hint:'25kg bag \u00B7 Vietnam',cat:'Nuts',stock:120,per:'kg',price:780},
+    {name:'Rubber Gasket 40mm',hint:'Box of 100 \u00B7 shelf B2',cat:'Rubber',stock:300,per:'dozen',price:96},
+    {name:'LED Torch (Import)',hint:'China \u00B7 1 yr warranty',cat:'Import',stock:3,per:'piece',price:180}].map(fix);
+  if(!D.cfg.cur||/^[?\uFFFD]+$/.test(D.cfg.cur))D.cfg.cur='\u20B9';
   save();
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('⚠ Could not save')}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('\u26A0 Could not save')}}
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
 const unit=p=>p.per==='kg'?'kg':p.per==='box'?'box':'pcs';
 const dz=p=>p.per==='dozen'?`= ${Math.floor(p.stock/12)} dozen ${num(p.stock%12)} pcs`:'';
@@ -203,7 +203,6 @@ function render(){
   const cats=[...new Set(D.items.map(i=>i.cat).filter(Boolean))].sort();
   if(cat!=='All'&&!cats.includes(cat))cat='All';
   $('chips').innerHTML=cats.length?['All',...cats].map(c=>`<button class="chip ${c===cat?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join(''):'';
-  $('cats').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');
   const f=D.items.filter(p=>(cat==='All'||p.cat===cat)&&(!q||(p.name+' '+p.hint+' '+p.cat).toLowerCase().includes(q)));
   $('sN').textContent=D.items.length;
   $('sL').textContent=D.items.filter(p=>st(p)).length;
@@ -211,9 +210,17 @@ function render(){
   $('list').innerHTML=f.length?f.map(p=>`<div class="row ${st(p)}" data-id="${p.id}">
     <div class="info"><div class="nm">${esc(p.name)}</div>${p.hint?`<div class="hint">${esc(p.hint)}</div>`:''}
     <div class="meta">${p.price?`<span class="tag p">${pr(p.price,p.per)}</span>`:''}${p.cat?`<span class="tag c" style="--h:${hue(p.cat)}">${esc(p.cat)}</span>`:''}</div></div>
-    <div class="qty"><b>${p.stock}</b><small>${p.per==='dozen'?Math.floor(p.stock/12)+' dz '+num(p.stock%12)+' pc':unit(p)}</small></div></div>`).join(''):`<div class="empty">No products yet.<br>Tap “Add product” to start.</div>`;
+    <div class="qty"><b>${p.stock}</b><small>${p.per==='dozen'?Math.floor(p.stock/12)+' dz '+num(p.stock%12)+' pc':unit(p)}</small></div></div>`).join(''):`<div class="empty">No products yet.<br>Tap \u201CAdd product\u201D to start.</div>`;
 }
 
+const BASE=['Nuts','Rubber','Import'];
+function fillCats(v){
+  const used=D.items.map(i=>i.cat).filter(Boolean);
+  const list=[...new Set([...BASE,...used,...(v?[v]:[])])].sort((a,b)=>a.localeCompare(b));
+  $('fCatSel').innerHTML='<option value="">No category</option>'+list.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')+'<option value="__new">+ Add new category...</option>';
+  $('fCatSel').value=v||'';$('fCat').value='';$('fCat').style.display='none';
+}
+const getCat=()=>$('fCatSel').value==='__new'?$('fCat').value.trim():$('fCatSel').value;
 function open(id){$('ov').classList.add('on');$(id).classList.add('on')}
 function closeAll(){cur=null;$('ov').classList.remove('on');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'))}
 function openProduct(id){
@@ -222,7 +229,7 @@ function openProduct(id){
   ['top2','sStock','sHist','delBtn'].forEach(i=>$(i).style.display=ex?'':'none');
   $('pNote').style.display=ex?'':'none';$('phWrap').style.display=ex?'':'none';
   $('pt').textContent=p?p.name:'New product';
-  $('fName').value=p?p.name:'';$('fHint').value=p?p.hint:'';$('fCat').value=p?p.cat:(cat!=='All'?cat:'');
+  $('fName').value=p?p.name:'';$('fHint').value=p?p.hint:'';fillCats(p?p.cat:(cat!=='All'?cat:''));
   $('fPrice').value=p&&p.price?p.price:'';$('fPer').value=p?p.per:'piece';
   $('saveD').textContent=ex?'Save details':'Add product';
   document.querySelectorAll('#acc details').forEach(d=>d.open=!ex&&(d.id==='sPrice'||d.id==='sDet'));
@@ -235,27 +242,27 @@ function refreshSheet(p){
   $('pt').textContent=p.name;
   $('big').textContent=p.stock;$('big').className='big '+s;
   $('badge').textContent=s==='zero'?'Out of stock':s==='low'?'Low stock':'In stock';$('badge').className='badge '+s;
-  $('bigSub').innerHTML=[unit(p),dz(p),p.price?'Value '+money(val(p)):''].filter(Boolean).join(' · ')+`<br>Last updated: <b>${fdt(p.upd)}</b>`;
+  $('bigSub').innerHTML=[unit(p),dz(p),p.price?'Value '+money(val(p)):''].filter(Boolean).join(' \u00B7 ')+`<br>Last updated: <b>${fdt(p.upd)}</b>`;
   $('hSum').textContent=p.hist.length?'Last: '+fdt(p.hist[0].t):'No changes yet';
-  $('hist').innerHTML=p.hist.length?p.hist.map(h=>`<div><div><b class="${h.d>0?'dn':'up'}">${h.d>0?'+ Added '+h.d:'− Removed '+Math.abs(h.d)}</b><small>${fdt(h.t)}</small></div><div class="r">Stock<br><b>${h.s}</b></div></div>`).join(''):'<div class="none">No stock changes yet</div>';
+  $('hist').innerHTML=p.hist.length?p.hist.map(h=>`<div><div><b class="${h.d>0?'dn':'up'}">${h.d>0?'+ Added '+h.d:'\u2212 Removed '+Math.abs(h.d)}</b><small>${fdt(h.t)}</small></div><div class="r">Stock<br><b>${h.s}</b></div></div>`).join(''):'<div class="none">No stock changes yet</div>';
   $('pSum').textContent=p.price?pr(p.price,p.per):'Not set';
   $('pNote').innerHTML=p.pt?`Last price change: <b>${fd(p.pt)}</b>`:'Price not set yet';
-  $('ph').innerHTML=p.ph.length?p.ph.map(h=>`<div><div><b class="${h.n>h.o?'up':'dn'}">${h.o?pr(h.o,h.po):'—'} → ${pr(h.n,h.pn)}</b><small>${fdt(h.t)}</small></div></div>`).join(''):'<div class="none">No price changes yet</div>';
+  $('ph').innerHTML=p.ph.length?p.ph.map(h=>`<div><div><b class="${h.n>h.o?'up':'dn'}">${h.o?pr(h.o,h.po):'\u2014'} \u2192 ${pr(h.n,h.pn)}</b><small>${fdt(h.t)}</small></div></div>`).join(''):'<div class="none">No price changes yet</div>';
 }
 function adjust(d){
   const p=D.items.find(x=>x.id===cur);if(!p||!d)return;
   const n=Math.round((p.stock+d)*1000)/1000;if(n<0)return toast('Not enough stock to remove');
   p.stock=n;p.upd=Date.now();p.hist.unshift({d,s:n,t:p.upd});p.hist.length=Math.min(p.hist.length,50);
-  save();render();refreshSheet(p);toast((d>0?'Added ':'Removed ')+Math.abs(d)+' → Stock '+n);
+  save();render();refreshSheet(p);toast((d>0?'Added ':'Removed ')+Math.abs(d)+' \u2192 Stock '+n);
 }
 function saveProduct(){
   const name=$('fName').value.trim();if(!name){$('sDet').open=true;return toast('Enter a product name')}
   if(D.items.some(i=>i.id!==cur&&i.name.toLowerCase()===name.toLowerCase()))return toast('Name already exists');
-  const v={name,hint:$('fHint').value.trim(),cat:$('fCat').value.trim(),price:Math.max(0,num($('fPrice').value)),per:$('fPer').value},now=Date.now();
+  const v={name,hint:$('fHint').value.trim(),cat:getCat(),price:Math.max(0,num($('fPrice').value)),per:$('fPer').value},now=Date.now();
   if(cur){const p=D.items.find(x=>x.id===cur);
     if(v.price!==p.price||v.per!==p.per){p.ph.unshift({o:p.price,n:v.price,po:p.per,pn:v.per,t:now});p.pt=now}
-    Object.assign(p,v);p.upd=now;save();render();refreshSheet(p);toast('Saved ✓')}
-  else{D.items.unshift(fix(v));save();render();closeAll();toast('Added “'+name+'”')}
+    Object.assign(p,v);p.upd=now;save();render();refreshSheet(p);toast('Saved \u2713')}
+  else{D.items.unshift(fix(v));save();render();closeAll();toast('Added \u201C'+name+'\u201D')}
 }
 const dl=(txt,name,type)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
 const day=()=>new Date().toISOString().slice(0,10);
@@ -277,6 +284,7 @@ function merge(list){let a=0,u=0;
 
 $('list').onclick=e=>{const r=e.target.closest('.row');if(r)openProduct(r.dataset.id)};
 $('chips').onclick=e=>{const c=e.target.closest('.chip');if(c){cat=c.dataset.c;render()}};
+$('fCatSel').onchange=()=>{const n=$('fCatSel').value==='__new';$('fCat').style.display=n?'':'none';if(n)$('fCat').focus()};
 $('q').oninput=render;$('add').onclick=()=>openProduct(null);
 $('setBtn').onclick=()=>{$('cLow').value=D.cfg.low;$('cCur').value=D.cfg.cur;open('ss')};
 $('ov').onclick=closeAll;document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeAll);
@@ -287,7 +295,7 @@ $('cMinus').onclick=()=>go(-1);
 document.querySelectorAll('[data-save]').forEach(b=>b.onclick=saveProduct);
 $('delBtn').onclick=()=>{const p=D.items.find(x=>x.id===cur);if(p&&confirm(`Delete "${p.name}"?`)){D.items=D.items.filter(x=>x!==p);save();render();closeAll();toast('Deleted')}};
 $('cLow').onchange=e=>{D.cfg.low=Math.max(0,num(e.target.value));save();render()};
-$('cCur').onchange=e=>{D.cfg.cur=e.target.value||'₹';save();render()};
+$('cCur').onchange=e=>{D.cfg.cur=e.target.value||'\u20B9';save();render()};
 $('expJ').onclick=()=>{dl(JSON.stringify(D,null,2),`stock-kit-${day()}.json`,'application/json');toast('Backup saved')};
 $('expC').onclick=()=>{const h='name,category,hint,stock,per,price,value';
   dl([h,...D.items.map(p=>[p.name,p.cat,p.hint,p.stock,p.per,p.price,Math.round(val(p))].map(csvCell).join(','))].join('\n'),`stock-kit-${day()}.csv`,'text/csv');toast('CSV exported')};
@@ -296,7 +304,7 @@ $('imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileRe
     if(/\.csv$/i.test(f.name)){const rows=parseCSV(String(rd.result)),h=rows.shift().map(x=>x.trim().toLowerCase());
       merge(rows.map(r=>Object.fromEntries(h.map((k,i)=>[k,(r[i]||'').trim()]))).filter(o=>o.name))}
     else{const j=JSON.parse(rd.result);if(j&&j.cfg)D.cfg=Object.assign(D.cfg,j.cfg);merge(Array.isArray(j)?j:j.items||[])}
-    closeAll()}catch(err){toast('⚠ Invalid file')}e.target.value=''};rd.readAsText(f)};
+    closeAll()}catch(err){toast('\u26A0 Invalid file')}e.target.value=''};rd.readAsText(f)};
 $('wipe').onclick=()=>{if(confirm('Delete ALL products? Export a backup first.')){D.items=[];save();render();closeAll()}};
 load();render();
 })();
