@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stock KIT</title>
+<style>
+:root{--bg:#fffaf3;--s:#fff;--s2:#f6f1e9;--t:#1c1917;--m:#78716c;--l:#ebe3d8;--a:#ea580c;--at:#fff;--navy:#1e3a8a;--ok:#138808;--okbg:#e6f4e3;--bad:#c62828;--badbg:#fdeaea;--warn:#c2410c;--warnbg:#fff0e0;--r:16px}
+@media(prefers-color-scheme:dark){:root{--bg:#121110;--s:#1b1917;--s2:#262320;--t:#f5f2ee;--m:#a39b92;--l:#33302c;--a:#fb923c;--at:#1a1000;--navy:#93b4ff;--ok:#5ddb4f;--okbg:#17301a;--bad:#ff7b72;--badbg:#3a1a1a;--warn:#fb923c;--warnbg:#3a2412}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font:17px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--t)}
+button,input,select{font:inherit;color:inherit}
+.app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:96px}
+header{position:sticky;top:0;z-index:20;background:var(--bg);padding:0 16px 10px}
+.flag{height:4px;margin:0 -16px 12px;background:linear-gradient(90deg,#ff9933 33.3%,#fff 33.3% 66.6%,#138808 66.6%)}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{font-size:26px;font-weight:800;letter-spacing:-.5px}.logo b{color:var(--a)}
+.ic{width:46px;height:46px;border-radius:14px;border:1px solid var(--l);background:var(--s);font-size:22px;cursor:pointer}
+.search{width:100%;height:52px;font-size:17px;border:1px solid var(--l);background:var(--s);border-radius:12px;padding:0 14px;outline:none}
+.search:focus,.f input:focus,.f select:focus{border-color:var(--a)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
+.chip{flex:none;height:40px;padding:0 18px;border-radius:99px;border:1px solid var(--l);background:var(--s);color:var(--m);font-size:15.5px;font-weight:700;cursor:pointer}
+.chip.on{background:var(--a);color:var(--at);border-color:var(--a)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:6px 16px 8px}
+.stat{background:var(--s);border:1px solid var(--l);border-radius:12px;padding:10px 12px}
+.stat small{display:block;font-size:12.5px;color:var(--m);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.stat b{font-size:24px;letter-spacing:-.4px}
+.list{padding:4px 16px;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:center;gap:12px;background:var(--s);border:1px solid var(--l);border-left:6px solid var(--ok);border-radius:var(--r);padding:16px 16px;cursor:pointer}
+.row.low{border-left-color:var(--a)}.row.zero{border-left-color:var(--bad)}
+.row:active{background:var(--s2)}
+.info{flex:1;min-width:0}
+.nm{font-size:19px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hint{font-size:15px;color:var(--m);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.tag{font-size:14px;font-weight:700;padding:3px 10px;border-radius:99px}
+.tag.p{background:var(--okbg);color:var(--ok)}
+.tag.c{background:hsl(var(--h) 85% 91%);color:hsl(var(--h) 65% 28%)}
+@media(prefers-color-scheme:dark){.tag.c{background:hsl(var(--h) 35% 22%);color:hsl(var(--h) 80% 78%)}}
+.qty{text-align:right;flex:none}
+.qty b{font-size:32px;font-weight:800;letter-spacing:-.8px;line-height:1;color:var(--navy)}
+.qty small{display:block;font-size:13.5px;color:var(--m);margin-top:3px}
+.row.low .qty b{color:var(--warn)}.row.zero .qty b{color:var(--bad)}
+.empty{text-align:center;color:var(--m);padding:56px 20px}
+.fab{position:fixed;right:max(18px,calc(50% - 262px));bottom:calc(22px + env(safe-area-inset-bottom));width:64px;height:64px;padding:0;border:0;border-radius:50%;background:var(--a);color:var(--at);font-size:38px;line-height:1;font-weight:400;box-shadow:0 8px 24px rgba(234,88,12,.4);cursor:pointer;z-index:30}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;visibility:hidden;transition:.2s;z-index:50}
+.ov.on{opacity:1;visibility:visible}
+.sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:var(--bg);border-radius:24px 24px 0 0;padding:10px 16px calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,100%);transition:transform .28s cubic-bezier(.32,.72,0,1);z-index:60}
+.sheet.on{transform:translate(-50%,0)}
+.grab{width:38px;height:4px;border-radius:9px;background:var(--l);margin:0 auto 14px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sh h2{font-size:22px;letter-spacing:-.3px}
+.x{width:42px;height:42px;font-size:16px;border:0;border-radius:50%;background:var(--s2);cursor:pointer}
+.top2{background:var(--s);border:1px solid var(--l);border-radius:var(--r);padding:14px 16px;margin-bottom:12px}
+.bigrow{display:flex;align-items:center;gap:12px}
+.big{font-size:60px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--ok)}
+.big.low{color:var(--warn)}.big.zero{color:var(--bad)}
+.badge{font-size:15px;font-weight:700;padding:5px 12px;border-radius:99px;background:var(--okbg);color:var(--ok)}
+.badge.low{background:var(--warnbg);color:var(--warn)}.badge.zero{background:var(--badbg);color:var(--bad)}
+.sub{color:var(--m);font-size:15px;margin-top:6px}
+details{background:var(--s);border:1px solid var(--l);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:17px 16px;font-size:18px;font-weight:700;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"▾";color:var(--m);transition:.2s}
+details[open] summary::after{transform:rotate(180deg)}
+summary span{flex:1}
+summary em{font-style:normal;font-weight:500;font-size:14px;color:var(--m)}
+details[open]>summary{border-bottom:1px solid var(--l)}
+.body{padding:14px 16px}
+.qbox{background:var(--s);border:2px solid var(--a);border-radius:var(--r);padding:14px 16px 16px;margin-bottom:12px}
+.qlabel{font-size:15px;font-weight:700;margin-bottom:10px}
+.qbox input{width:100%;height:60px;border:1px solid var(--l);background:var(--bg);border-radius:12px;text-align:center;font-size:26px;font-weight:800;outline:none;margin-bottom:10px}
+.qbox input:focus{border-color:var(--a)}
+.qbox .btn{height:58px;font-size:19px}
+.btn{height:54px;padding:0 18px;border:0;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;background:var(--a);color:var(--at)}
+.btn.g{background:var(--s2);color:var(--t)}.btn.ok{background:var(--ok);color:#fff}.btn.bad{background:var(--bad);color:#fff}
+.f{display:grid;gap:12px}
+.f label{display:grid;gap:6px;font-size:14.5px;font-weight:600;color:var(--m)}
+.f input,.f select{height:54px;border:1px solid var(--l);background:var(--s);border-radius:12px;padding:0 14px;font-size:17px;outline:none;width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:15px;background:var(--s2);border-radius:10px;padding:9px 12px;color:var(--m)}
+.note b{color:var(--t)}
+.hist{display:grid;gap:8px;font-size:16px;max-height:260px;overflow-y:auto}
+.hist>div{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--s2);border-radius:10px;padding:9px 12px}
+.hist small{color:var(--m);display:block;font-size:14px}
+.hist .r{text-align:right}
+.hist .none{justify-content:center;color:var(--m)}
+.up{color:var(--bad)}.dn{color:var(--ok)}
+.h3{font-size:13.5px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.4px;margin:16px 0 8px}
+.del{display:block;margin:14px auto 0;border:0;background:none;color:var(--bad);font-size:16px;font-weight:600;cursor:pointer}
+.sec{margin-bottom:18px}.sec h3{font-size:13.5px;color:var(--m);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns .btn,.lbl{display:flex;align-items:center;justify-content:center;font-size:16px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:99px;font-size:16px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:90;white-space:nowrap}
+@media(prefers-color-scheme:dark){.toast{color:#10131c}}
+.toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="flag"></div>
+    <div class="top"><div class="logo">Stock <b>KIT</b></div><button class="ic" id="setBtn" aria-label="Settings">⚙</button></div>
+    <input class="search" id="q" type="search" placeholder="Search products or hints…">
+    <div class="chips" id="chips"></div>
+  </header>
+  <div class="stats">
+    <div class="stat"><small>Items</small><b id="sN" style="color:var(--navy)">0</b></div>
+    <div class="stat"><small>Low / Out</small><b id="sL" style="color:var(--warn)">0</b></div>
+    <div class="stat"><small>Stock value</small><b id="sV" style="color:var(--ok)">0</b></div>
+  </div>
+  <div class="list" id="list"></div>
+</div>
+<button class="fab" id="add" aria-label="Add product">+</button>
+<div class="ov" id="ov"></div>
+
+<div class="sheet" id="ps">
+  <div class="grab"></div>
+  <div class="sh"><h2 id="pt">Product</h2><button class="x" data-close>✕</button></div>
+  <div class="top2" id="top2">
+    <div class="bigrow"><div class="big" id="big">0</div><span class="badge" id="badge"></span></div>
+    <div class="sub" id="bigSub"></div>
+  </div>
+  <div class="qbox" id="sStock"><div class="qlabel">Add or remove stock</div>
+    <input id="amt" type="number" inputmode="decimal" placeholder="Type quantity">
+    <div class="two"><button class="btn bad" id="cMinus">− Remove</button><button class="btn ok" id="cPlus">+ Add</button></div></div>
+  <div id="acc">
+    <details id="sHist"><summary><span>🕘 Stock history</span><em id="hSum"></em></summary>
+      <div class="body"><div class="hist" id="hist"></div></div>
+    </details>
+    <details id="sPrice"><summary><span>₹ Price</span><em id="pSum"></em></summary>
+      <div class="body f">
+        <div class="two">
+          <label>Price<input id="fPrice" type="number" inputmode="decimal" placeholder="0"></label>
+          <label>Price per<select id="fPer"><option value="piece">Piece</option><option value="dozen">Dozen</option><option value="kg">Kg</option><option value="box">Box</option></select></label>
+        </div>
+        <div class="note" id="pNote"></div>
+        <button class="btn" data-save>Save price</button>
+        <div id="phWrap"><div class="h3" style="margin-top:4px">Price history</div><div class="hist" id="ph"></div></div>
+      </div>
+    </details>
+    <details id="sDet"><summary><span>✏️ Product details</span></summary>
+      <div class="body f">
+        <label>Name<input id="fName" placeholder="e.g. Cashew W320"></label>
+        <label>Hint / note<input id="fHint" placeholder="e.g. 25kg bag, Vietnam, shelf B2"></label>
+        <label>Category<input id="fCat" list="cats" placeholder="Nuts, Rubber, Import…"></label>
+        <datalist id="cats"></datalist>
+        <button class="btn" data-save id="saveD">Save details</button>
+      </div>
+    </details>
+  </div>
+  <button class="del" id="delBtn">Delete product</button>
+</div>
+
+<div class="sheet" id="ss">
+  <div class="grab"></div>
+  <div class="sh"><h2>Settings</h2><button class="x" data-close>✕</button></div>
+  <div class="sec"><h3>General</h3><div class="f"><div class="two">
+    <label>Low stock at or below<input id="cLow" type="number" min="0"></label>
+    <label>Currency<input id="cCur" maxlength="4"></label></div></div></div>
+  <div class="sec"><h3>Export</h3><div class="btns"><button class="btn g" id="expJ">Backup (JSON)</button><button class="btn g" id="expC">Excel (CSV)</button></div></div>
+  <div class="sec"><h3>Import</h3>
+    <label class="btn g lbl">Choose JSON or CSV file<input id="imp" type="file" accept=".json,.csv" hidden></label>
+    <p class="sub">CSV columns: name, category, hint, stock, per, price. Same names are updated.</p></div>
+  <div class="sec"><h3>Danger zone</h3><button class="btn g" id="wipe" style="width:100%;color:var(--bad)">Delete all data</button></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(()=>{
+const KEY='stockkit_v1',OLD='desi_stock_inventory_v2';
+const $=id=>document.getElementById(id);
+let D={items:[],cfg:{low:5,cur:'₹'}},cur=null,cat='All';
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=parseFloat(v);return isFinite(n)?Math.round(n*1000)/1000:0};
+const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h};
+function fix(i){const now=Date.now(),created=i.created||now,price=Math.max(0,num(i.price));
+  const hist=(Array.isArray(i.hist||i.history)?(i.hist||i.history):[]).map(h=>h.d!==undefined?h:{d:h.delta,s:h.stock,t:h.time}).slice(0,50);
+  return{id:String(i.id||uid()),name:String(i.name||'Unnamed').trim()||'Unnamed',hint:String(i.hint||''),cat:String(i.cat||i.category||''),stock:Math.max(0,num(i.stock)),per:['piece','dozen','kg','box'].includes(i.per)?i.per:'piece',price,hist,ph:Array.isArray(i.ph)?i.ph.slice(0,30):[],created,upd:i.upd||(hist[0]&&hist[0].t)||created,pt:i.pt||(price?created:0)}}
+function load(){
+  try{const s=localStorage.getItem(KEY)||localStorage.getItem(OLD);
+    if(s){const p=JSON.parse(s);if(Array.isArray(p))D.items=p.map(fix);else if(p&&p.items){D.items=p.items.map(fix);D.cfg=Object.assign(D.cfg,p.cfg)}}}catch(e){}
+  if(!D.items.length&&!localStorage.getItem(KEY))D.items=[
+    {name:'Cashew W320',hint:'25kg bag · Vietnam',cat:'Nuts',stock:120,per:'kg',price:780},
+    {name:'Rubber Gasket 40mm',hint:'Box of 100 · shelf B2',cat:'Rubber',stock:300,per:'dozen',price:96},
+    {name:'LED Torch (Import)',hint:'China · 1 yr warranty',cat:'Import',stock:3,per:'piece',price:180}].map(fix);
+  save();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('⚠ Could not save')}}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
+const unit=p=>p.per==='kg'?'kg':p.per==='box'?'box':'pcs';
+const dz=p=>p.per==='dozen'?`= ${Math.floor(p.stock/12)} dozen ${num(p.stock%12)} pcs`:'';
+const val=p=>p.per==='dozen'?p.stock/12*p.price:p.stock*p.price;
+const money=n=>D.cfg.cur+Math.round(n).toLocaleString('en-IN');
+const st=p=>p.stock<=0?'zero':p.stock<=D.cfg.low?'low':'';
+const fdt=t=>new Date(t).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+const fd=t=>new Date(t).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+const pr=(n,per)=>`${D.cfg.cur}${n}/${per}`;
+
+function render(){
+  const q=$('q').value.trim().toLowerCase();
+  const cats=[...new Set(D.items.map(i=>i.cat).filter(Boolean))].sort();
+  if(cat!=='All'&&!cats.includes(cat))cat='All';
+  $('chips').innerHTML=cats.length?['All',...cats].map(c=>`<button class="chip ${c===cat?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join(''):'';
+  $('cats').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');
+  const f=D.items.filter(p=>(cat==='All'||p.cat===cat)&&(!q||(p.name+' '+p.hint+' '+p.cat).toLowerCase().includes(q)));
+  $('sN').textContent=D.items.length;
+  $('sL').textContent=D.items.filter(p=>st(p)).length;
+  $('sV').textContent=money(D.items.reduce((a,p)=>a+val(p),0));
+  $('list').innerHTML=f.length?f.map(p=>`<div class="row ${st(p)}" data-id="${p.id}">
+    <div class="info"><div class="nm">${esc(p.name)}</div>${p.hint?`<div class="hint">${esc(p.hint)}</div>`:''}
+    <div class="meta">${p.price?`<span class="tag p">${pr(p.price,p.per)}</span>`:''}${p.cat?`<span class="tag c" style="--h:${hue(p.cat)}">${esc(p.cat)}</span>`:''}</div></div>
+    <div class="qty"><b>${p.stock}</b><small>${p.per==='dozen'?Math.floor(p.stock/12)+' dz '+num(p.stock%12)+' pc':unit(p)}</small></div></div>`).join(''):`<div class="empty">No products yet.<br>Tap “Add product” to start.</div>`;
+}
+
+function open(id){$('ov').classList.add('on');$(id).classList.add('on')}
+function closeAll(){cur=null;$('ov').classList.remove('on');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'))}
+function openProduct(id){
+  const p=D.items.find(x=>x.id===id);cur=p?p.id:null;
+  const ex=!!p;
+  ['top2','sStock','sHist','delBtn'].forEach(i=>$(i).style.display=ex?'':'none');
+  $('pNote').style.display=ex?'':'none';$('phWrap').style.display=ex?'':'none';
+  $('pt').textContent=p?p.name:'New product';
+  $('fName').value=p?p.name:'';$('fHint').value=p?p.hint:'';$('fCat').value=p?p.cat:(cat!=='All'?cat:'');
+  $('fPrice').value=p&&p.price?p.price:'';$('fPer').value=p?p.per:'piece';
+  $('saveD').textContent=ex?'Save details':'Add product';
+  document.querySelectorAll('#acc details').forEach(d=>d.open=!ex&&(d.id==='sPrice'||d.id==='sDet'));
+  if(p){refreshSheet(p);$('amt').value='';$('amt').placeholder=p.per==='dozen'?'Quantity in pcs (1 dozen = 12)':'Quantity in '+unit(p)}
+  open('ps');
+  setTimeout(()=>(p?$('amt'):$('fName')).focus(),350);
+}
+function refreshSheet(p){
+  const s=st(p);
+  $('pt').textContent=p.name;
+  $('big').textContent=p.stock;$('big').className='big '+s;
+  $('badge').textContent=s==='zero'?'Out of stock':s==='low'?'Low stock':'In stock';$('badge').className='badge '+s;
+  $('bigSub').innerHTML=[unit(p),dz(p),p.price?'Value '+money(val(p)):''].filter(Boolean).join(' · ')+`<br>Last updated: <b>${fdt(p.upd)}</b>`;
+  $('hSum').textContent=p.hist.length?'Last: '+fdt(p.hist[0].t):'No changes yet';
+  $('hist').innerHTML=p.hist.length?p.hist.map(h=>`<div><div><b class="${h.d>0?'dn':'up'}">${h.d>0?'+ Added '+h.d:'− Removed '+Math.abs(h.d)}</b><small>${fdt(h.t)}</small></div><div class="r">Stock<br><b>${h.s}</b></div></div>`).join(''):'<div class="none">No stock changes yet</div>';
+  $('pSum').textContent=p.price?pr(p.price,p.per):'Not set';
+  $('pNote').innerHTML=p.pt?`Last price change: <b>${fd(p.pt)}</b>`:'Price not set yet';
+  $('ph').innerHTML=p.ph.length?p.ph.map(h=>`<div><div><b class="${h.n>h.o?'up':'dn'}">${h.o?pr(h.o,h.po):'—'} → ${pr(h.n,h.pn)}</b><small>${fdt(h.t)}</small></div></div>`).join(''):'<div class="none">No price changes yet</div>';
+}
+function adjust(d){
+  const p=D.items.find(x=>x.id===cur);if(!p||!d)return;
+  const n=Math.round((p.stock+d)*1000)/1000;if(n<0)return toast('Not enough stock to remove');
+  p.stock=n;p.upd=Date.now();p.hist.unshift({d,s:n,t:p.upd});p.hist.length=Math.min(p.hist.length,50);
+  save();render();refreshSheet(p);toast((d>0?'Added ':'Removed ')+Math.abs(d)+' → Stock '+n);
+}
+function saveProduct(){
+  const name=$('fName').value.trim();if(!name){$('sDet').open=true;return toast('Enter a product name')}
+  if(D.items.some(i=>i.id!==cur&&i.name.toLowerCase()===name.toLowerCase()))return toast('Name already exists');
+  const v={name,hint:$('fHint').value.trim(),cat:$('fCat').value.trim(),price:Math.max(0,num($('fPrice').value)),per:$('fPer').value},now=Date.now();
+  if(cur){const p=D.items.find(x=>x.id===cur);
+    if(v.price!==p.price||v.per!==p.per){p.ph.unshift({o:p.price,n:v.price,po:p.per,pn:v.per,t:now});p.pt=now}
+    Object.assign(p,v);p.upd=now;save();render();refreshSheet(p);toast('Saved ✓')}
+  else{D.items.unshift(fix(v));save();render();closeAll();toast('Added “'+name+'”')}
+}
+const dl=(txt,name,type)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
+const day=()=>new Date().toISOString().slice(0,10);
+const csvCell=s=>'"'+String(s).replace(/"/g,'""')+'"';
+function parseCSV(t){const rows=[];let r=[],c='',q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
+    else if(ch==='"')q=true;else if(ch===','){r.push(c);c=''}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()))rows.push(r);r=[]}
+    else c+=ch}
+  r.push(c);if(r.some(x=>x.trim()))rows.push(r);return rows}
+function merge(list){let a=0,u=0;
+  list.map(fix).forEach(n=>{const e=D.items.find(x=>x.name.toLowerCase()===n.name.toLowerCase());
+    if(e){const now=Date.now();if(n.price!==e.price||n.per!==e.per){e.ph.unshift({o:e.price,n:n.price,po:e.per,pn:n.per,t:now});e.pt=now}
+      Object.assign(e,{hint:n.hint,cat:n.cat,per:n.per,price:n.price,upd:now});
+      if(n.stock!==e.stock){e.hist.unshift({d:Math.round((n.stock-e.stock)*1000)/1000,s:n.stock,t:now});e.stock=n.stock}u++}
+    else{D.items.push(n);a++}});
+  save();render();toast(`Imported: ${a} new, ${u} updated`)}
+
+$('list').onclick=e=>{const r=e.target.closest('.row');if(r)openProduct(r.dataset.id)};
+$('chips').onclick=e=>{const c=e.target.closest('.chip');if(c){cat=c.dataset.c;render()}};
+$('q').oninput=render;$('add').onclick=()=>openProduct(null);
+$('setBtn').onclick=()=>{$('cLow').value=D.cfg.low;$('cCur').value=D.cfg.cur;open('ss')};
+$('ov').onclick=closeAll;document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeAll);
+document.querySelectorAll('#acc details').forEach(d=>d.addEventListener('toggle',()=>{if(d.open&&cur)document.querySelectorAll('#acc details').forEach(o=>{if(o!==d)o.open=false})}));
+const go=sg=>{const v=Math.abs(num($('amt').value));if(!v)return toast('Type a quantity first');adjust(sg*v);$('amt').value='';$('amt').focus()};
+$('cPlus').onclick=()=>go(1);
+$('cMinus').onclick=()=>go(-1);
+document.querySelectorAll('[data-save]').forEach(b=>b.onclick=saveProduct);
+$('delBtn').onclick=()=>{const p=D.items.find(x=>x.id===cur);if(p&&confirm(`Delete "${p.name}"?`)){D.items=D.items.filter(x=>x!==p);save();render();closeAll();toast('Deleted')}};
+$('cLow').onchange=e=>{D.cfg.low=Math.max(0,num(e.target.value));save();render()};
+$('cCur').onchange=e=>{D.cfg.cur=e.target.value||'₹';save();render()};
+$('expJ').onclick=()=>{dl(JSON.stringify(D,null,2),`stock-kit-${day()}.json`,'application/json');toast('Backup saved')};
+$('expC').onclick=()=>{const h='name,category,hint,stock,per,price,value';
+  dl([h,...D.items.map(p=>[p.name,p.cat,p.hint,p.stock,p.per,p.price,Math.round(val(p))].map(csvCell).join(','))].join('\n'),`stock-kit-${day()}.csv`,'text/csv');toast('CSV exported')};
+$('imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{
+    if(/\.csv$/i.test(f.name)){const rows=parseCSV(String(rd.result)),h=rows.shift().map(x=>x.trim().toLowerCase());
+      merge(rows.map(r=>Object.fromEntries(h.map((k,i)=>[k,(r[i]||'').trim()]))).filter(o=>o.name))}
+    else{const j=JSON.parse(rd.result);if(j&&j.cfg)D.cfg=Object.assign(D.cfg,j.cfg);merge(Array.isArray(j)?j:j.items||[])}
+    closeAll()}catch(err){toast('⚠ Invalid file')}e.target.value=''};rd.readAsText(f)};
+$('wipe').onclick=()=>{if(confirm('Delete ALL products? Export a backup first.')){D.items=[];save();render();closeAll()}};
+load();render();
+})();
+</script>
+</body>
+</html>
